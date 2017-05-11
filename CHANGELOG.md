@@ -33,6 +33,11 @@ BREAKING CHANGES:
 * changed option from log-requests -> enable-logging [#PR199](https://github.com/gambol99/keycloak-proxy/pull/199)
 * changed option from json-format -> enable-json-logging [#PR199](https://github.com/gambol99/keycloak-proxy/pull/199)
 
+#### **2.0.6**
+
+FIXES:
+ * Abort the request upon entry into /oauth regardless or response [#PR205](https://github.com/gambol99/keycloak-proxy/pull/205)
+
 #### **2.0.5**
 
 FIXES:
