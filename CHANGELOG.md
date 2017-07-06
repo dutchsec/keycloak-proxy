@@ -27,6 +27,7 @@ FEATURES
 * updated the base image to apline 3.6 in commit [0fdebaf821](https://github.com/gambol99/keycloak-proxy/pull/236/commits/0fdebaf8215e9480896f01ec7ab2ef7caa242da1)
 * moved to use zap for the logging [#PR237](https://github.com/gambol99/keycloak-proxy/pull/237)
 * making the X-Auth-Token optional in the upstream headers via the --enable-token-header [#PR247](https://github.com/gambol99/keycloak-proxy/pull/247)
+* the upstream url is optional, meaning when not configured via --upstream-url is will proxy all requests to the Host header [#PR248](https://github.com/gambol99/keycloak-proxy/pull/248)
 
 BREAKING CHANGES:
 * the proxy no longer uses prefixes for resources, if you wish to use wildcard urls you need

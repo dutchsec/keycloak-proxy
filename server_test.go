@@ -76,7 +76,6 @@ func TestNewKeycloakProxy(t *testing.T) {
 	assert.NotNil(t, proxy)
 	assert.NotNil(t, proxy.config)
 	assert.NotNil(t, proxy.router)
-	assert.NotNil(t, proxy.endpoint)
 	assert.NoError(t, proxy.Run())
 }
 

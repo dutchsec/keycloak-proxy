@@ -56,9 +56,22 @@ func (r *oauthProxy) proxyMiddleware(next http.Handler) http.Handler {
 
 		// By default goproxy only provides a forwarding proxy, thus all requests have to be absolute
 		// and we must update the host headers
-		req.URL.Host = r.endpoint.Host
-		req.URL.Scheme = r.endpoint.Scheme
-		req.Host = r.endpoint.Host
+		// https://github.com/gambol99/keycloak-proxy/pull/248 - updated to permit optional upstreams
+		switch r.endpoint {
+		case nil:
+			req.URL.Host = req.Host
+			switch req.TLS {
+			case nil:
+				req.URL.Scheme = "http"
+			default:
+				req.URL.Scheme = "https"
+			}
+		default:
+			// override with the specificed upstream endpoint
+			req.URL.Host = r.endpoint.Host
+			req.URL.Scheme = r.endpoint.Scheme
+			req.Host = r.endpoint.Host
+		}
 
 		req.Header.Add("X-Forwarded-For", realIP(req))
 		req.Header.Set("X-Forwarded-Host", req.URL.Host)

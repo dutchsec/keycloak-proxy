@@ -80,8 +80,10 @@ func newProxy(config *Config) (*oauthProxy, error) {
 	}
 
 	// parse the upstream endpoint
-	if svc.endpoint, err = url.Parse(config.Upstream); err != nil {
-		return nil, err
+	if config.Upstream != "" {
+		if svc.endpoint, err = url.Parse(config.Upstream); err != nil {
+			return nil, err
+		}
 	}
 
 	// initialize the store if any
@@ -243,6 +245,9 @@ func (r *oauthProxy) createReverseProxy() error {
 	}
 	if r.config.EnableEncryptedToken {
 		r.log.Info("session access tokens will be encrypted")
+	}
+	if r.config.Upstream == "" && (r.config.EnableAuthorizationHeader || r.config.EnableTokenHeader) {
+		r.log.Warn("no upstream has been configured, hence acting as an open reverse proxy, you sure you want tokens proxied")
 	}
 
 	return nil
@@ -441,24 +446,25 @@ func (r *oauthProxy) createHTTPListener(config listenerConfig) (net.Listener, er
 }
 
 // createUpstreamProxy create a reverse http proxy from the upstream
-func (r *oauthProxy) createUpstreamProxy(upstream *url.URL) error {
+func (r *oauthProxy) createUpstreamProxy(endpoint *url.URL) error {
 	dialer := (&net.Dialer{
 		KeepAlive: r.config.UpstreamKeepaliveTimeout,
 		Timeout:   r.config.UpstreamTimeout,
 	}).Dial
 
 	// are we using a unix socket?
-	if upstream != nil && upstream.Scheme == "unix" {
-		r.log.Info("using unix socket for upstream", zap.String("socket", fmt.Sprintf("%s%s", upstream.Host, upstream.Path)))
+	if endpoint != nil && endpoint.Scheme == "unix" {
+		r.log.Info("using unix socket for endpoint", zap.String("socket", fmt.Sprintf("%s%s", endpoint.Host, endpoint.Path)))
 
-		socketPath := fmt.Sprintf("%s%s", upstream.Host, upstream.Path)
+		socketPath := fmt.Sprintf("%s%s", endpoint.Host, endpoint.Path)
 		dialer = func(network, address string) (net.Conn, error) {
 			return net.Dial("unix", socketPath)
 		}
-		upstream.Path = ""
-		upstream.Host = "domain-sock"
-		upstream.Scheme = "http"
+		endpoint.Path = ""
+		endpoint.Host = "domain-sock"
+		endpoint.Scheme = "http"
 	}
+
 	// create the upstream tls configure
 	tlsConfig := &tls.Config{InsecureSkipVerify: r.config.SkipUpstreamTLSVerify}
 

@@ -39,9 +39,9 @@ docker-build:
 		-e GOOS=linux golang:${GOVERSION} \
 		make static
 
-docker-test:
+docker-test: static docker
 	@echo "--> Running the docker test"
-	docker run --rm -ti -p 3000:3000 \
+	docker run --rm -ti --net=host \
     -v ${ROOT_DIR}/config.yml:/etc/keycloak/config.yml:ro \
     -v ${ROOT_DIR}/tests:/opt/tests:ro \
     ${REGISTRY}/${AUTHOR}/${NAME}:${VERSION} --config /etc/keycloak/config.yml

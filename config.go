@@ -87,11 +87,11 @@ func (r *Config) isValid() error {
 			return errors.New("you don't need to specify the tls-private-key, use tls-ca-key instead")
 		}
 	} else {
-		if r.Upstream == "" {
-			return errors.New("you have not specified an upstream endpoint to proxy to")
-		}
-		if _, err := url.Parse(r.Upstream); err != nil {
-			return fmt.Errorf("the upstream endpoint is invalid, %s", err)
+		// making the upstream url optional (https://github.com/gambol99/keycloak-proxy/pull/248)
+		if r.Upstream != "" {
+			if _, err := url.Parse(r.Upstream); err != nil {
+				return fmt.Errorf("the upstream endpoint is invalid, %s", err)
+			}
 		}
 		// step: if the skip verification is off, we need the below
 		if !r.SkipTokenVerification {
